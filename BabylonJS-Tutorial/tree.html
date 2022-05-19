@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title>BabylonJs - Basic Element-Creating Scene</title>
+      <script src = "https://cdn.babylonjs.com/babylon.js"></script>
+      <style>
+         canvas {width: 100%; height: 100%;}
+      </style>
+   </head>
+
+   <body>
+      <canvas id = "renderCanvas"></canvas>
+      <script type = "text/javascript">
+         var canvas = document.getElementById("renderCanvas");
+         var engine = new BABYLON.Engine(canvas, true);
+         var createScene  = function() {
+            var scene = new BABYLON.Scene(engine);
+            //scene.clearColor = new BABYLON.Color3(0, 1, 0);	
+            // Create camera and light
+            var light = new BABYLON.PointLight("Point", new BABYLON.Vector3(5, 10, 5), scene);
+            
+            var camera = new BABYLON.ArcRotateCamera("Camera", 1, 0.8, 8, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+
+            var spriteManagerTrees = new BABYLON.SpriteManager("trees", "images/tree.png", 1000, 400, scene);	
+
+            for (var i = 0; i < 1000; i++) {
+               var tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+               tree.position.x = Math.random() * 100 - 50;
+               tree.position.z = Math.random() * 100 - 50;
+               tree.isPickable = true;
+
+               //Some "dead" trees
+               if (Math.round(Math.random() * 5) === 0) {
+                  tree.angle = Math.PI * 90 / 180;
+                  tree.position.y = -0.3;
+               }
+            }
+
+            var spriteManagerTrees1 = new BABYLON.SpriteManager("trees1", "images/tree1.png", 1000,400, scene);	
+
+            for (var i = 0; i < 1000; i++) {
+               var tree1 = new BABYLON.Sprite("tree1", spriteManagerTrees1);       
+               if (i %2 == 0) {
+               tree1.position.x = Math.random() * 100 - 50;			
+               } else {
+                  tree1.position.z = Math.random() * 100 - 50;
+               }
+               tree1.isPickable = true;
+            }
+
+            spriteManagerTrees.isPickable = true;
+            spriteManagerTrees1.isPickable = true;
+
+            var spriteManagerPlayer = new BABYLON.SpriteManager("playerManager", "images/bird.png", 2, 200, scene);
+            
+            var player = new BABYLON.Sprite("player", spriteManagerPlayer);
+            player.position.x = 2;
+            player.position.y = 2;	
+            player.position.z = 0;	
+
+
+            var spriteManagerPlayer1 = new BABYLON.SpriteManager("playerManager1", "images/bird.png", 2, 200, scene);
+            
+            var player1 = new BABYLON.Sprite("player", spriteManagerPlayer1);
+            player1.position.x = 1;
+            player1.position.y = 2;	
+            player1.position.z = 0;	
+
+            var spriteManagerPlayer2 = new BABYLON.SpriteManager("playerManager2", "images/bird.png", 2, 200, scene);
+            
+            var player2 = new BABYLON.Sprite("player", spriteManagerPlayer2);
+            player2.position.x = 0;
+            player2.position.y = 1;	
+            player2.position.z = 0;	
+
+            scene.onPointerDown = function (evt) {
+               var pickResult = scene.pickSprite(this.pointerX, this.pointerY);
+               if (pickResult.hit) {
+                  pickResult.pickedSprite.angle += 1;
+               }
+            };
+            return scene;
+         };
+         var scene = createScene();
+         engine.runRenderLoop(function() {
+            scene.render();
+         });
+      </script>
+   </body>
+</html>

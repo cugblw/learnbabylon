@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+<head>
+    <meta charset="UTF-8">
+    <title>babylonjs</title>
+    <script src="https://cdn.babylonjs.com/babylon.max.js"></script>
+
+    <style>
+        body {
+            background: #000000;
+        }
+        canvas {
+            border: 1px solid red;
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="babylonjsBanner" width="600" height="600"></canvas>
+<script>
+    let canvas_w_orig = 600,
+    canvas_h_orig = 600,
+    readyToDisplayScene = 0;
+
+function babylonJSLoaded() {
+    readyToDisplayScene++;
+
+    if (readyToDisplayScene === 2) {
+        renderWebGLHeader();
+    }
+}
+
+window.addEventListener('load', () => {
+    readyToDisplayScene++;
+
+    if (readyToDisplayScene === 2) {
+        renderWebGLHeader();
+    }
+});
+
+function renderWebGLHeader() {
+    let sun, earth, mars, sunFresnel, earthFresnel, marsFresnel;
+    let canvas = document.getElementById("babylonjsBanner");
+
+    let engine = new BABYLON.Engine(canvas, true);
+
+    let createScene = () => {
+        let scene = new BABYLON.Scene(engine);
+        scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+
+        let camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
+
+        // target the camera to scene origin
+        camera.setTarget(BABYLON.Vector3.Zero());
+
+        // create a basic light, aiming 0,1,0 - meaning, to the sky
+        let light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 0, 0), scene);
+        light.specular = BABYLON.Color3.Black();
+        light.diffuse = new BABYLON.Color3(0.5, 0.5, 0.4);
+
+        let sunLight = new BABYLON.PointLight("sunlight", new BABYLON.Vector3(1.6, 1.1, 0), scene);
+        sunLight.specular = BABYLON.Color3.Black();
+        sunLight.diffuse = new BABYLON.Color3(0.75, 0.75, 0.6);
+
+        sunFresnel = BABYLON.Mesh.CreateSphere("SunFresnel", 32, 5.9, scene);
+        sunFresnel.position = new BABYLON.Vector3(1.6, 1.1, 0);
+
+        let sunFresnelMaterial = new BABYLON.StandardMaterial("SunFresnelMaterial", scene);
+        sunFresnelMaterial.emissiveColor = BABYLON.Color3.White();
+        sunFresnelMaterial.alpha = 0.7;
+        sunFresnelMaterial.alphaMode = BABYLON.Engine.ALPHA_ADD;
+
+        // Fresnel
+        sunFresnelMaterial.emissiveFresnelParameters = new BABYLON.FresnelParameters();
+        sunFresnelMaterial.emissiveFresnelParameters.bias = 0.05;
+        sunFresnelMaterial.emissiveFresnelParameters.power = 1;
+        sunFresnelMaterial.emissiveFresnelParameters.leftColor = BABYLON.Color3.Yellow();
+        sunFresnelMaterial.emissiveFresnelParameters.rightColor = BABYLON.Color3.Black();
+
+        sunFresnel.material = sunFresnelMaterial;
+
+        //var sphere = BABYLON.Mesh.CreateSphere("Sphere0", 32, 8, scene);
+        //sphere.rotation.x += Math.PI/2;
+        //sphere.material = multimat;
+
+        BABYLON.SceneLoader.ImportMesh("SunLoPoly", "https://david.azureedge.net/babylonjs/banner/", "sun.babylon", scene, (newMeshes, particleSystems, skeletons) => {
+            sun = newMeshes[0];
+            sun.scaling = new BABYLON.Vector3(8.25, 8.25, 8.25);
+            sun.position = new BABYLON.Vector3(1.6, 1.1, 0);
+            sun.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+
+            earthFresnel = BABYLON.Mesh.CreateSphere("EarthFresnel", 32, 0.2, scene);
+            earthFresnel.position = new BABYLON.Vector3(-0.71, -0.4, 0);
+            earthFresnel.parent = sun;
+
+            let earthFresnelMaterial = new BABYLON.StandardMaterial("EarthFresnelMaterial", scene);
+            earthFresnelMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            earthFresnelMaterial.alpha = 0.7;
+            earthFresnelMaterial.alphaMode = BABYLON.Engine.ALPHA_ADD;
+
+            // Fresnel
+            earthFresnelMaterial.emissiveFresnelParameters = new BABYLON.FresnelParameters();
+            earthFresnelMaterial.emissiveFresnelParameters.bias = 0.05;
+            earthFresnelMaterial.emissiveFresnelParameters.power = 1;
+            earthFresnelMaterial.emissiveFresnelParameters.leftColor = new BABYLON.Color3(0.6431372549019608, 0.8313725490196078, 1);
+            earthFresnelMaterial.emissiveFresnelParameters.rightColor = BABYLON.Color3.Blue();
+
+            earthFresnel.material = earthFresnelMaterial;
+
+            marsFresnel = BABYLON.Mesh.CreateSphere("MarsFresnel", 32, 0.056, scene);
+            marsFresnel.position = new BABYLON.Vector3(0.332, 0.50, 0.275);
+            marsFresnel.parent = sun;
+
+            let marsFresnelMaterial = new BABYLON.StandardMaterial("EarthFresnelMaterial", scene);
+            marsFresnelMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            marsFresnelMaterial.alpha = 0.5;
+            marsFresnelMaterial.alphaMode = BABYLON.Engine.ALPHA_ADD;
+
+            // Fresnel
+            marsFresnelMaterial.emissiveFresnelParameters = new BABYLON.FresnelParameters();
+            marsFresnelMaterial.emissiveFresnelParameters.bias = 0.05;
+            marsFresnelMaterial.emissiveFresnelParameters.power = 1;
+            marsFresnelMaterial.emissiveFresnelParameters.leftColor = BABYLON.Color3.Red();
+            marsFresnelMaterial.emissiveFresnelParameters.rightColor = BABYLON.Color3.Black();
+
+            marsFresnel.material = marsFresnelMaterial;
+
+            BABYLON.SceneLoader.ImportMesh("EarthClouds", "https://david.azureedge.net/babylonjs/banner/", "earth.babylon", scene, (newMeshes, particleSystems, skeletons) => {
+                earth = newMeshes[0];
+                earth.scaling = new BABYLON.Vector3(11.5, 11.5, 11.5);
+                earth.rotation.x += Math.PI /2;
+                earth.position = new BABYLON.Vector3(-0.71, -0.4, 0);
+                earth.parent = sun;
+            });
+
+            BABYLON.SceneLoader.ImportMesh("Mars", "https://david.azureedge.net/babylonjs/banner/", "mars.babylon", scene,  (newMeshes, particleSystems, skeletons) => {
+                mars = newMeshes[0];
+                mars.scaling = new BABYLON.Vector3(3.2, 3.2, 3.2);
+                mars.rotation.x += Math.PI / 2;
+                mars.position = new BABYLON.Vector3(0.332, 0.50, 0.275);
+                mars.parent = sun;
+            }); 
+        });
+
+        return scene;
+    }
+
+    let scene = createScene();
+    engine.runRenderLoop(() => {
+        if (sun && earth && mars) {
+            sun.rotation.y += 0.003;
+            earth.rotation.z += 0.01;
+            mars.rotation.z += 0.01;
+        }
+
+        scene.render();
+    });
+}
+
+babylonJSLoaded();
+
+</script>
+</body>
+</html>

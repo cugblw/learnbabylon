@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title> BabylonJs - Basic Element-Creating Scene</title>
+      <!-- <script src = "./Babylon.js"></script> -->
+      <script src="https://cdn.babylonjs.com/babylon.js"></script>
+      <style>
+         canvas { width: 100%; height: 100%;}
+         
+         body{
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+         }
+      </style>
+   </head>
+   
+   <body>
+      <canvas id = "renderCanvas"></canvas>
+      <script type = "text/javascript">
+         var canvas = document.getElementById("renderCanvas");
+         var engine = new BABYLON.Engine(canvas, true);
+         var createScene  = function() {
+            var scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0, 1, 0);
+            
+            var camera = new BABYLON.ArcRotateCamera("Camera", 1, 0.8, 10, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+            
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;	
+            
+            var pl = new BABYLON.PointLight("pl", BABYLON.Vector3.Zero(), scene);
+            pl.diffuse = new BABYLON.Color3(1, 1, 1);
+            pl.specular = new BABYLON.Color3(1, 1, 1);
+            pl.intensity = 0.8;
+
+            var box1 = BABYLON.Mesh.CreateTorus("torus", 5, 1, 10, scene, false);
+            box1.position = new BABYLON.Vector3(0,0,0);
+
+            var animationBox1 = new BABYLON.Animation("myAnimation1", "scaling.z", 10, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+            // An array with all animation keys
+            var keys = []; 
+
+            //At the animation key 0, the value of scaling is "1"
+            keys.push({
+               frame: 0,
+               value: 1
+            });
+
+            //At the animation key 20, the value of scaling is "0.2"
+            keys.push({
+               frame: 60,
+               value: 0.2
+            });
+
+            //At the animation key 100, the value of scaling is "1"
+            keys.push({
+               frame: 100,
+               value: 1
+            });
+            
+            animationBox1.setKeys(keys);
+            box1.animations = [];
+            // box1.animations.push(animationBox1);		
+
+            var easingFunction = new BABYLON.QuarticEase();
+            easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+
+            animationBox1.setEasingFunction(easingFunction);
+
+            var event1 = new BABYLON.AnimationEvent(20, function () {console.log("Yeah!"); }, true);
+            animationBox1.addEvent(event1);
+            
+            box1.animations.push(animationBox1);
+            scene.beginAnimation(box1, 0, 100, true); 
+            return scene;
+         };
+         var scene = createScene();
+         engine.runRenderLoop(function() {
+            scene.render();
+         });
+      </script>
+   </body>
+
+</html>

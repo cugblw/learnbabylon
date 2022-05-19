@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title> Babylon.JS : Demo2</title>
+      <script src = "js/babylon.js"></script>   
+      <style>
+         canvas { width: 100%; height: 100%;}
+      </style>
+   </head>
+   
+   <body>
+      <canvas id = "renderCanvas"></canvas>
+      <script type = "text/javascript">
+         var canvas = document.getElementById("renderCanvas");
+         var engine = new BABYLON.Engine(canvas, true);	
+         var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+
+            var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI/2, Math.PI / 3, 25, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;		
+
+            var ground = BABYLON.MeshBuilder.CreateGround("ground1", {width: 20, height: 10, subdivisions: 25}, scene);
+
+            //Create dynamic texture
+            var textureGround = new BABYLON.DynamicTexture("dynamic texture", 512, scene);   
+            var textureContext = textureGround.getContext();
+
+            var materialGround = new BABYLON.StandardMaterial("Mat", scene);    				
+            materialGround.diffuseTexture = textureGround;
+            ground.material = materialGround;
+
+            //Draw on canvas
+            textureContext.beginPath();
+            textureContext.moveTo(75,40);
+            textureContext.bezierCurveTo(75,37,70,25,50,25);
+            textureContext.bezierCurveTo(20,25,20,62.5,20,62.5);
+            textureContext.bezierCurveTo(20,80,40,102,75,120);
+            textureContext.bezierCurveTo(110,102,130,80,130,62.5);
+            textureContext.bezierCurveTo(130,62.5,130,25,100,25);
+            textureContext.bezierCurveTo(85,25,75,37,75,40);
+            textureContext.fillStyle = "red";
+            textureContext.fill();
+            textureGround.update();
+            
+            return scene;
+         };
+         var scene = createScene();
+            engine.runRenderLoop(function() {
+            scene.render();
+         });
+      </script>
+   </body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title>BabylonJs - Basic Element-Creating Scene</title>
+      <script src = "js/babylon.js"></script>
+      <style>
+         canvas {width: 100%; height: 100%;}
+      </style>
+   </head>
+
+   <body>
+      <canvas id = "renderCanvas"></canvas>
+      <script type = "text/javascript">
+         var canvas = document.getElementById("renderCanvas");
+         var engine = new BABYLON.Engine(canvas, true);
+         
+         var createScene  = function() {
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+
+            // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.ArcRotateCamera("camera1", 0, Math.PI / 2, 100, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, false);
+
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+
+            var mesh = BABYLON.Mesh.CreateBox("box01", 25, scene);
+            mesh.position = new BABYLON.Vector3(0, 0, 0);
+
+            var brickWallDiffURL = "images/a1.png";
+            var brickWallNHURL = "images/a2.png";
+            var stoneDiffURL = "images/pebble.jpg";
+            var stoneNHURL = "images/a3.png";
+
+            var stoneDiffuseTexture = new BABYLON.Texture(stoneDiffURL, scene);
+            
+            var stoneNormalsHeightTexture = new BABYLON.Texture(stoneNHURL, scene);
+            
+            var wallDiffuseTexture = new BABYLON.Texture(brickWallDiffURL, scene);
+            
+            var wallNormalsHeightTexture = new BABYLON.Texture(brickWallNHURL, scene);
+            
+            var normalsHeightTexture = stoneNormalsHeightTexture;
+
+            var material = new BABYLON.StandardMaterial("mtl01", scene);
+            material.diffuseTexture = stoneDiffuseTexture;
+            material.bumpTexture = stoneNormalsHeightTexture;
+            
+            material.useParallax = true;
+            material.useParallaxOcclusion = true;
+            material.parallaxScaleBias = 0.1;
+            material.specularPower = 1000.0;
+            material.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+            mesh.material = material;	
+            return scene;		
+         };
+         var scene = createScene();
+         engine.runRenderLoop(function() {
+            scene.render();
+         });
+      </script>
+   </body>
+</html>
